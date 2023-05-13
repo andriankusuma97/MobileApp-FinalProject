@@ -1,0 +1,21 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "share_a_ride_db",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "logging": false
+  },
+  "test": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "share_a_ride_db_TEST",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "logging": false
+  },
+  "production": {
+    "use_env_variable": "DATABASE_URL"
+  }
+}
