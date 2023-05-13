@@ -18,15 +18,18 @@ import { MaterialCommunityIcons, MaterialIcons,Feather, Entypo,  EvilIcons,AntDe
 } from "@expo/vector-icons";
 import { Gesture, GestureDetector, } from "react-native-gesture-handler";
 import CardPost from "../components/CardPost";
-import axios from "axios";
+import { fetchDataRides,fetchCurrentUser } from "../store/action/actionCreator";
+// import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const BASE_URL = "http://192.168.100.167:4002";
+// const BASE_URL = "http://192.168.100.167:4002";
+const access_token = AsyncStorage.getItem("access_token");
 
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
-  const [user, setCurrentUser] = useState({});
-  const [rides, setRides] = useState([]);
+  const dispatch = useDispatch()
+  // const [user, setCurrentUser] = useState({});
+  // const [rides, setRides] = useState([]);
   const [clicked, setCLicked] = useState(null);
   const [searchPhrase, setSearchPhrase] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,51 +38,49 @@ export default function HomeScreen({ route }) {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleSearch = () => {
-    // Lakukan sesuatu setelah user melakukan pencarian
-    
+  const {rides,ridesLoading} = useSelector((state)=>{
+    return state.ridesReducer
+  })
+  const {user,userLoading} = useSelector((state)=>{
+    return state.userReducer
+  })
+
+
+  // const fetchCurrentUser = async () => {
+  //   try {
+  //     console.log(access_token,"<<<<< masuk sini ")
+  //     const { data } = await axios.get(BASE_URL + "/users/currentUser", {
+  //       headers: { access_token: await access_token },
+  //     });
+  //     console.log("<<<<< masuk sini kedua ")
+
+  //     setCurrentUser(data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+
+  // const fetchRides = async () => {
+  //   const { data } = await axios.get(BASE_URL + `/rides?origin=${origin}&dest=${destination}`, {
+  //     headers: { access_token: await AsyncStorage.getItem("access_token") },
+  //   });
+  //   setRides(data);
+  //   setOrigin("")
+  //   setDestination("")
+  // };
+  console.log(user,"<<<< ini user")
+  function handleSearch(){
+    dispatch(fetchDataRides(origin,destination))
     setDestination("")
     setOrigin("")
   }
 
-  const handleDateChange = async () => {
-    try {
-      const { action, year, month, day } = await DatePickerAndroid.open({
-        date: date,
-        mode: 'spinner' // pilihan mode 'default', 'calendar', 'spinner'
-      });
-      if (action !== DatePickerAndroid.dismissedAction) {
-        setDate(new Date(year, month, day));
-      }
-    } catch ({ code, message }) {
-      console.warn('Cannot open date picker', message);
-    }
-  }
 
-  const fetchCurrentUser = async () => {
-    try {
-      const { data } = await axios.get(BASE_URL + "/users/currentUser", {
-        headers: { access_token: await AsyncStorage.getItem("access_token") },
-      });
-
-      setCurrentUser(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-
-  const fetchRides = async () => {
-    const { data } = await axios.get(BASE_URL + `/rides?origin=${origin}&dest=${destination}`, {
-      headers: { access_token: await AsyncStorage.getItem("access_token") },
-    });
-    setRides(data);
-    setOrigin("")
-    setDestination("")
-  };
   useEffect(() => {
-    fetchCurrentUser();
-    fetchRides();
+    // fetchCurrentUser();
+    dispatch(fetchCurrentUser())
+    dispatch(fetchDataRides())
     navigation.setOptions({
       headerShown: false,
     });
@@ -173,7 +174,7 @@ export default function HomeScreen({ route }) {
             }}/>
           )}
         </View>
-        <TouchableOpacity onPress={fetchRides}>
+        <TouchableOpacity onPress={handleSearch}>
             <View className="bg-white w-10 h-10 rounded-xl items-center justify-center mb-2">
               <AntDesign name="search1" size={24} color="black" />
             </View>

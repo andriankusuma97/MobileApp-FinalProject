@@ -10,33 +10,44 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { handleLogin } from "../store/action/actionCreator";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-const BASE_URL = "http://192.168.100.167:4002";
+// import axios from "axios";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+// const BASE_URL = "http://192.168.100.167:4002";
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+  const dispatch = useDispatch()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
-    try {
-      const { data } = await axios.post(BASE_URL + "/users/login", {
-        email,
-        password,
-      });
-      // console.log("disini");
-      // console.log(data);
+  // const handleLogin = async () => {
+  //   try {
+  //     const { data } = await axios.post(BASE_URL + "/users/login", {
+  //       email,
+  //       password,
+  //     });
+  //     // console.log("disini");
+  //     // console.log(data);
 
-      await AsyncStorage.setItem("access_token", data.access_token);
-      const value = await AsyncStorage.getItem("access_token");
+  //     await AsyncStorage.setItem("access_token", data.access_token);
+  //     const value = await AsyncStorage.getItem("access_token");
       
-      // console.log(value);
-      navigation.replace("Home");
-    } catch (error) {
-      console.log(error);
+  //     // console.log(value);
+  //     navigation.replace("Home");
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  async function handleSubmitLogin(){
+    const user={
+      email,password,
     }
-  };
+    console.log(user,"<<<dari login")
+    await dispatch(handleLogin(user))
+    console.log("<<<<<lolos")
+    navigation.replace("Home");
+  }
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -71,7 +82,7 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+      <TouchableOpacity style={styles.button} onPress={handleSubmitLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 

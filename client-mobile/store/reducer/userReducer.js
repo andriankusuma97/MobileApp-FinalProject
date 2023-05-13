@@ -1,15 +1,17 @@
-import { BASE_URL, FETCH_NEWS } from "../action/actionType";
+import { BASE_URL, ADD_USER } from "../action/actionType";
 
 const initialState ={
-  user:[]
+  user:[],
+  userLoading: true
+
 };
 const userReducer = (state = initialState, action)=>{
   console.log(action)
   switch (action.type) {
-    case FETCH_NEWS:
+    case ADD_USER:
       return {
         ...state,
-        news: action.payload,
+        user: action.payload,
         
       };
     default:
