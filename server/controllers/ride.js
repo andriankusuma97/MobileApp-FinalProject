@@ -11,11 +11,7 @@ class RideController {
     const { origin, dest } = req.query;
     const {id} =req.user
     let params = {
-      where: {
-        createdBy:{
-          [Op.not]:id
-        }
-      },
+  
       order: [["updatedAt", "DESC"]],
       include: [
         {
@@ -77,7 +73,7 @@ class RideController {
         price,
         seats,
       } = req.body;
-
+      console.log(req.body,"<<<<<dari server ride")
       if (seats <= 0) {
         throw { name: "invalid_seats" };
       }
@@ -106,11 +102,11 @@ class RideController {
         RideId: ride.id,
         status: "creator",
       });
-
+      console.log(ride , "<<< dari controller ride")
       const message = `New ride with ${ride.id} created`;
       res.status(201).json({ message });
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       next(error);
     }
   }

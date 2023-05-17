@@ -9,10 +9,9 @@ import {
   AntDesign,
   
 } from "@expo/vector-icons";
-import axios from "axios";
-const BASE_URL = "http://192.168.100.167:4002";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useDispatch } from "react-redux";
+import { addNewRide } from "../store/action/actionCreator";
 
 const PostRideScreen = () => {
   const navigation = useNavigation();
@@ -23,6 +22,9 @@ const PostRideScreen = () => {
   const [price, setPrice] = useState("");
   const [seats, setSeats] = useState("");
   const [date, setDate] = useState(new Date(1598051730000));
+
+  const dispatch = useDispatch();
+
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [show, setShow] = useState(false);
@@ -40,24 +42,15 @@ const PostRideScreen = () => {
 
     // console.log(data);
     try {
-      console.log(toPost, "<<<<< data add ne post");
-      const access_token = await AsyncStorage.getItem("access_token");
-      const res = await axios.post(BASE_URL + "/rides", toPost, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          access_token: access_token,
-        },
-      });
-      // console.log(res);
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
+  
+      await dispatch(addNewRide(toPost))
       Alert.alert('Success Adding New Ride');
+      navigation.replace("Home");
       console.log("Uploaded");
     } catch (error) {
       console.log(error);
     }
-    navigation.replace("Home");
+   
   };
 
   const onChangeDeparture = (event, selectedDate) => {
@@ -84,8 +77,7 @@ const PostRideScreen = () => {
   const showTimepicker = () => {
     showMode("time");
   };
-  console.log(arrivalTime, departureTime, "<<<date Arrival");
-  console.log(departureTime, "<<<date deparute ");
+
 
   useLayoutEffect(() => {
     navigation.setOptions({

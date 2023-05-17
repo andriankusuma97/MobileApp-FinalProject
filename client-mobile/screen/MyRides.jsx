@@ -18,20 +18,21 @@ import {
   AntDesign,
 } from "@expo/vector-icons";
 import CardMyRides from "../components/CardMyRides";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-const BASE_URL = "http://192.168.100.167:4002";
+import { getMyRides } from "../store/action/actionCreator";
+import { useDispatch, useSelector } from "react-redux";
 
 const MyRides = () => {
   const navigation = useNavigation();
   const [rides, setRides] = useState([]);
+  const dispatch = useDispatch()
+
+  const {myRides,ridesLoading} = useSelector((state)=>{
+    return state.ridesReducer
+  })
 
   const fetchMyRides = async () => {
     try {
-      const { data } = await axios.get(BASE_URL + "/users/rides", {
-        headers: { access_token: await AsyncStorage.getItem("access_token") },
-      });
-      setRides(data);
+      await dispatch(getMyRides())
     } catch (error) {
       console.log(error);
     }
@@ -60,7 +61,7 @@ const MyRides = () => {
       </View>
 
       <FlatList
-        data={rides}
+        data={myRides}
         renderItem={({ item }) => <CardMyRides item={item} />}
         keyExtractor={(item) => item.id}
       />

@@ -19,19 +19,16 @@ import { MaterialCommunityIcons, MaterialIcons,Feather, Entypo,  EvilIcons,AntDe
 import { Gesture, GestureDetector, } from "react-native-gesture-handler";
 import CardPost from "../components/CardPost";
 import { fetchDataRides,fetchCurrentUser } from "../store/action/actionCreator";
-// import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// const BASE_URL = "http://192.168.100.167:4002";
 const access_token = AsyncStorage.getItem("access_token");
 
 
 export default function HomeScreen({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch()
-  // const [user, setCurrentUser] = useState({});
-  // const [rides, setRides] = useState([]);
   const [clicked, setCLicked] = useState(null);
   const [searchPhrase, setSearchPhrase] = useState(null);
+  // const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [destination, setDestination] = useState('');
   const [origin, setOrigin] = useState('');
@@ -45,47 +42,23 @@ export default function HomeScreen({ route }) {
     return state.userReducer
   })
 
-
-  // const fetchCurrentUser = async () => {
-  //   try {
-  //     console.log(access_token,"<<<<< masuk sini ")
-  //     const { data } = await axios.get(BASE_URL + "/users/currentUser", {
-  //       headers: { access_token: await access_token },
-  //     });
-  //     console.log("<<<<< masuk sini kedua ")
-
-  //     setCurrentUser(data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-
-  // const fetchRides = async () => {
-  //   const { data } = await axios.get(BASE_URL + `/rides?origin=${origin}&dest=${destination}`, {
-  //     headers: { access_token: await AsyncStorage.getItem("access_token") },
-  //   });
-  //   setRides(data);
-  //   setOrigin("")
-  //   setDestination("")
-  // };
-  console.log(user,"<<<< ini user")
   function handleSearch(){
     dispatch(fetchDataRides(origin,destination))
     setDestination("")
     setOrigin("")
   }
-
+  async function handleUser(){
+    await dispatch(fetchCurrentUser())
+    // setUser(user)
+  }
 
   useEffect(() => {
-    // fetchCurrentUser();
-    dispatch(fetchCurrentUser())
+    handleUser()
     dispatch(fetchDataRides())
     navigation.setOptions({
       headerShown: false,
     });
   }, []);
-
 
   
   return (
@@ -167,7 +140,6 @@ export default function HomeScreen({ route }) {
               setCLicked(true);
             }}
           />
-          {/* cross Icon, depending on whether the search bar is clicked or not */}
           {clicked && (
             <Entypo name="cross" size={20} color="black" style={{ padding: 1 }} onPress={() => {
                 setSearchPhrase("")
@@ -180,24 +152,7 @@ export default function HomeScreen({ route }) {
             </View>
         </TouchableOpacity>
       </View>
-      {/* cancel button, depending on whether the search bar is clicked or not */}
-     
-
-
-        {/* <View style={styles.filter}>
-          <TouchableOpacity onPress={() => navigation.navigate("PostRide")}>
-            <MaterialIcons name="add-location-alt" size={24} color="grey" />
-          </TouchableOpacity>
-        </View> */}
-        {/* <View style={styles.filter}>
-          <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
-            <MaterialCommunityIcons
-              name="filter-variant"
-              size={24}
-              color="#8e9eb6"
-            />
-          </TouchableOpacity>
-        </View> */}
+      
       </View>
 
       <FlatList

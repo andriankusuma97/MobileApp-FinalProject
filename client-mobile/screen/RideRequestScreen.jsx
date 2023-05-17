@@ -11,31 +11,26 @@ import {
 import React, { useLayoutEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
-  Octicons,
-  FontAwesome5,
-  Ionicons,
-  FontAwesome,
   AntDesign,
 } from "@expo/vector-icons";
 import CardRequestRides from "../components/CardRequestRides"
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-const BASE_URL = "http://192.168.100.167:4002";
+import { useDispatch, useSelector } from "react-redux";
+import { getRequestRides } from "../store/action/actionCreator";
 
 
 const RideRequestScreen = () => {
   const navigation = useNavigation();
-  const [ride, setDataRequest] = useState({});
+  // const [ride, setDataRequest] = useState({});
+  const dispatch = useDispatch()
 
+  const {requestRide,ridesLoading} = useSelector((state)=>{
+    return state.ridesReducer
+  })
   // console.log(ride,"<<<<ride dari request screen")
 
   const fetchRequetedRides = async () => {
     try {
-      const { data } = await axios.get(BASE_URL + "/rides/requests", {
-        headers: { access_token: await AsyncStorage.getItem("access_token") },
-      });
-      // console.log(data, "<<<< ini data dari requst");
-      setDataRequest(data);
+      await dispatch(getRequestRides())
     } catch (error) {
       console.log(error);
     }
@@ -65,7 +60,7 @@ const RideRequestScreen = () => {
       </View>
 
       <FlatList
-        data={ride}
+        data={requestRide}
         renderItem={({ item }) => <CardRequestRides item={item} />}
         keyExtractor={(item) => item.id}
       />

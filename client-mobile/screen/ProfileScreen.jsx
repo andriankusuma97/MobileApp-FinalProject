@@ -12,24 +12,22 @@ import {
 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ModalAddVihecle from "../components/ModalAddVihecle";
-import axios from "axios";
-const BASE_URL = "http://192.168.100.167:4002";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCurrentUser } from "../store/action/actionCreator";
 
 
 const ProfileScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  const [user, setCurrentUser] = useState(null);
-  const fetchCurrentUser = async () => {
-    try {
-      const { data } = await axios.get(BASE_URL + "/users/currentUser", {
-        headers: { access_token: await AsyncStorage.getItem("access_token") },
-      });
-      setCurrentUser(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const dispatch = useDispatch()
+
+  // const [user, setCurrentUser] = useState(null);
+
+  const {user,userLoading} = useSelector((state)=>{
+    return state.userReducer
+  })
+
+
 
   async function handleLogout() {
     try {
@@ -41,16 +39,19 @@ const ProfileScreen = () => {
     }
   }
 
+  // console.log(user,"<<<<<< ini user dari profile")
+
   const changeModalVisible = (bol) => {
     setModalVisible(bol);
   };
 
   useLayoutEffect(() => {
-    fetchCurrentUser();
+    // fetchCurrentUser();
+    dispatch(fetchCurrentUser())
     navigation.setOptions({
       headerShown: false,
     });
-  }, [user]);
+  }, []);
   return (
     <View className="relative w-full max-w-2xl h-full  bg-white">
       <Modal

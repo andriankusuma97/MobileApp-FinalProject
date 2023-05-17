@@ -15,4 +15,6 @@ export const ADD_USER ="addUser"
 
 // Rides
 export const GET_RIDES = "getRides";
-export const FETCH_DETAIL_RIDE ="fetchDetailPost"
+export const GET_DETAIL_RIDE ="fetchDetailPost"
+export const GET_REQUEST_RIDE = "getrequestRide"
+export const GET_MY_RIDE = "getMyRides"

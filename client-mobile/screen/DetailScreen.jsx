@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Alert
+  Alert,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
@@ -18,18 +18,21 @@ import {
   FontAwesome,
   AntDesign,
 } from "@expo/vector-icons";
-import SweetAlert from 'react-native-sweet-alert';
+import { useDispatch, useSelector } from "react-redux";
+import { getStatusBookRide,fetchDetailsRide } from "../store/action/actionCreator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const BASE_URL = "http://192.168.100.167:4002";
 
 const DetailScreen = () => {
-  const [rides, setRides] = useState(null);
+  const [detailsRide, setRides] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
+
   const id = route.params.item.id;
- 
+
+
   const fetchDetailRide = async () => {
-  
     const { data } = await axios.get(BASE_URL + `/rides/${id}`, {
       headers: {
         access_token: await AsyncStorage.getItem("access_token"),
@@ -38,34 +41,20 @@ const DetailScreen = () => {
     setRides(data);
   };
 
-  const handleBookRide = async () => {
-    try {
-      const { data } = await axios.post(
-        BASE_URL + `/rides/order/${id}`,{},
-        {
-          headers: {
-            "access_token": await AsyncStorage.getItem("access_token"),
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      Alert.alert('Booking Success');
-      
-      navigation.replace("MyRides");
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
+  async function handleBookRide() {
+    await dispatch(getStatusBookRide(id));
+    Alert.alert("Booking Success");
+    navigation.replace("MyRides");
+  }
 
   useEffect(() => {
     fetchDetailRide();
-  }, []);
+    // handleDetailsRide(id)
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [id]);
 
   return (
     <View className="flex-1 bg-background">
@@ -84,12 +73,12 @@ const DetailScreen = () => {
           <View className="bg-slate-600 w-16 h-16 rounded-full border border-slate-400 ">
             <Image
               className="w-full h-full object-cover rounded-full "
-              source={{uri:rides?.UserRides[0].User.photo}}
+              source={{ uri: detailsRide?.UserRides[0].User.photo }}
             />
           </View>
           <View>
             <Text className="font-semibold text-2xl ">
-              {rides?.UserRides[0].User.name}
+              {detailsRide?.UserRides[0].User.name}
             </Text>
           </View>
         </View>
@@ -99,11 +88,11 @@ const DetailScreen = () => {
         <View>
           <View className="flex-row space-x-1">
             <Text className=" text-sky-700 font-bold text-[16px]">
-              {rides?.departureTime}
+              {detailsRide?.departureTime}
             </Text>
             <Octicons name="dot-fill" size={24} color="grey" />
             <Text className=" text-sky-700 font-bold  text-[16px]  ">
-              {`Seats:${rides?.seats} `}
+              {`Seats:${detailsRide?.seats} `}
             </Text>
           </View>
         </View>
@@ -122,18 +111,22 @@ const DetailScreen = () => {
         <View className="flex-row w-full justify-between">
           <View>
             <View>
-              <Text className="text-xl font-semibold">{rides?.startLocation}</Text>
-              <Text className="text-[14px]">{rides?.departureTime}</Text>
+              <Text className="text-xl font-semibold">
+                {detailsRide?.startLocation}
+              </Text>
+              <Text className="text-[14px]">{detailsRide?.departureTime}</Text>
             </View>
 
             <View className="h-[40px] w-1"></View>
             <View>
-              <Text className="text-xl font-semibold">{rides?.destination}</Text>
-              <Text className="text-[14px]">{rides?.arrivalTime}</Text>
+              <Text className="text-xl font-semibold">
+                {detailsRide?.destination}
+              </Text>
+              <Text className="text-[14px]">{detailsRide?.arrivalTime}</Text>
             </View>
           </View>
           <View className="mr-4">
-            <Text className="text-2xl font-bold">{rides?.price}</Text>
+            <Text className="text-2xl font-bold">{detailsRide?.price}</Text>
           </View>
         </View>
       </View>
@@ -144,22 +137,26 @@ const DetailScreen = () => {
         </Text>
         <View className="flex-row items-center mt-2 space-x-2">
           <Ionicons name="md-car" size={24} color="grey" />
-          <Text>{rides?.Vehicle ? rides.Vehicle.type : `Not Inputed`}</Text>
+          <Text>
+            {detailsRide?.Vehicle ? detailsRide?.Vehicle.type : `Not Inputed`}
+          </Text>
         </View>
 
         <View className="mt-2 flex-row space-x-2">
           <FontAwesome name="phone" size={24} color="grey" />
-          <Text>{rides?.UserRides[0].User.phoneNumber}</Text>
+          <Text>{detailsRide?.UserRides[0].User.phoneNumber}</Text>
         </View>
         <View className="flex-row items-center space-x-2 mt-2 pr-2 ">
           <AntDesign name="exclamationcircle" size={24} color="grey" />
-          <Text>{rides?.UserRides[0].User.address}</Text>
+          <Text>{detailsRide?.UserRides[0].User.address}</Text>
         </View>
       </View>
 
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate("ChatBox", { item: rides?.UserRides[0].User })
+          navigation.navigate("ChatBox", {
+            item: detailsRide?.UserRides[0].User,
+          })
         }
       >
         <View className="flex-row mt-6 mx-6 px-4 py-4 bg-slate-100 rounded-md shadow-md space-x-2 items-center ">
@@ -168,14 +165,11 @@ const DetailScreen = () => {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity
-       onPress={handleBookRide}
-      >
+      <TouchableOpacity onPress={handleBookRide}>
         <View className=" bg-sky-400 mt-8 mx-6 px-4 py-4  rounded-2xl shadow-md space-x-2 items-center ">
           <Text className="text-3xl text-center">Book This Ride</Text>
         </View>
       </TouchableOpacity>
-
     </View>
   );
 };
